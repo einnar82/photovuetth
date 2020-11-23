@@ -1,9 +1,24 @@
 <template>
   <div class="container">
-    <div class="video-options">
-      <select name="" id="" class="custom-select" @change="changeCamera">
-        <option value="">Select camera</option>
-      </select>
+    <div class="columns is-mobile">
+      <div class="column">
+        <b-select
+          name=""
+          id=""
+          class="custom-select"
+          @change="changeCamera"
+          v-model="selectedOptions"
+          placeholder="Select a name"
+        >
+          <option
+            v-for="option in cameraOptions"
+            :value="option.deviceId"
+            :key="option.id"
+          >
+            {{ option.label }}
+          </option>
+        </b-select>
+      </div>
     </div>
     <div class="columns is-mobile">
       <div class="column">
@@ -39,6 +54,9 @@ export default {
   name: "Home",
   data: () => ({
     notCaptured: true,
+    cameraModel: "",
+    selectedOptions: "",
+    cameraOptions: [],
   }),
   computed: {
     fileName() {
@@ -66,7 +84,6 @@ export default {
       navigator.mediaDevices
         .getUserMedia(updatedConstraints)
         .then(function (stream) {
-          //video.src = window.URL.createObjectURL(stream);
           video.srcObject = stream;
           video.play();
         });
@@ -87,31 +104,32 @@ export default {
       this.notCaptured = true;
     },
     async initializeDevice() {
-      const cameraOptions = document.querySelector(".video-options>select");
       const devices = await navigator.mediaDevices.enumerateDevices();
       const videoDevices = devices.filter(
         (device) => device.kind === "videoinput"
       );
-      const options = videoDevices.map((videoDevice) => {
-        return `<option value="${videoDevice.deviceId}">${videoDevice.label}</option>`;
+      this.cameraOptions = videoDevices.map((videoDevice) => {
+        return {
+          deviceId: videoDevice.deviceId,
+          label: videoDevice.label,
+        };
       });
-      cameraOptions.innerHTML = options.join("");
       let video = document.getElementById("video");
       // Get access to the camera!
       if (
         "mediaDevices" in navigator &&
         "getUserMedia" in navigator.mediaDevices
       ) {
+        this.selectedOptions = this.cameraOptions[0].deviceId;
         // Not adding `{ audio: true }` since we only want video now
         navigator.mediaDevices
           .getUserMedia({
             video: true,
             deviceId: {
-              exact: cameraOptions.value,
+              exact: this.cameraOptions[0].deviceId,
             },
           })
           .then(function (stream) {
-            //video.src = window.URL.createObjectURL(stream);
             video.srcObject = stream;
             video.play();
           });
