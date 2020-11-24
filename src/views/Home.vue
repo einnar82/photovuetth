@@ -22,7 +22,7 @@
     </div>
     <div class="columns is-mobile">
       <div class="column">
-        <video id="video" width="640" height="480" autoplay></video>
+        <video id="video" width="480" height="480" autoplay></video>
       </div>
     </div>
     <div class="columns is-mobile">
@@ -43,7 +43,13 @@
     </div>
     <div class="columns is-mobile">
       <div class="column">
-        <canvas id="canvas" width="640" height="480"></canvas>
+        <canvas
+          id="canvas"
+          width="480"
+          height="480"
+          style="display: none"
+        ></canvas>
+        <img :src="imageSrc" />
       </div>
     </div>
   </div>
@@ -57,6 +63,7 @@ export default {
     cameraModel: "",
     selectedOptions: "",
     cameraOptions: [],
+    imageSrc: "",
   }),
   computed: {
     fileName() {
@@ -93,7 +100,8 @@ export default {
       let context = canvas.getContext("2d");
       let video = document.getElementById("video");
       // Trigger photo take
-      context.drawImage(video, 0, 0, 640, 480);
+      context.drawImage(video, 0, 0);
+      this.imageSrc = canvas.toDataURL("image/png");
       this.notCaptured = false;
     },
     downloadImage() {
@@ -142,5 +150,12 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.hide {
+  display: none;
+}
+
+.show {
+  display: block;
+}
 </style>
